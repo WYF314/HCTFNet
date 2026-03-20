@@ -1,0 +1,16 @@
+{
+  "patch_size": 512,
+  "augmentation": true,
+  "num_gpus": 2,
+  "num_workers": 8,
+  "num_channel": 3,
+  "EF": false,
+  "epochs": 150,
+  "batch_size": 1, 
+  "learning_rate": 2e-3,
+  "loss_function": "hybrid",
+  "dataset_dir": "",
+  "weight_dir": "./outputs/",
+  "ckp_paths": [""],
+  "input_size": 256
+}
