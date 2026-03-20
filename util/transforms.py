@@ -447,17 +447,13 @@ class HistMatch(object):
     def __init__(self):
         self.val_avg_img1_hist = self.get_all_image_hist("/mnt/Disk2/datasets/WHU-CD/val/A")
         self.val_avg_img2_hist = self.get_all_image_hist("/mnt/Disk2/datasets/WHU-CD/val/B")
-        # self.val_avg_img1_hist = self.get_all_image_hist("Datasets/LEVIR-CD/val/A")
-        # self.val_avg_img2_hist = self.get_all_image_hist("Datasets/LEVIR-CD/val/B")
+
 
     def __call__(self, sample):
         if len(sample) == 2:  # infer的时候使用
             img1, img2 = sample
             img1 = np.array(img1)
             img2 = np.array(img2)
-            # img1 = cv2.cvtColor(img1, cv2.COLOR_RGB2BGR)
-            # img2 = cv2.cvtColor(img2, cv2.COLOR_RGB2BGR)
-
             img1_hist = self.get_img_hist(img1)
             img2_hist = self.get_img_hist(img2)
 
@@ -468,8 +464,6 @@ class HistMatch(object):
             if bhat2 > 0.72:
                 img2 = self.dist_match(img2, self.val_avg_img2_hist)
 
-            # img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2RGB)
-            # img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2RGB)
             img1 = Image.fromarray(img1)
             img2 = Image.fromarray(img2)
 

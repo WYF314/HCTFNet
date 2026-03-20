@@ -8,7 +8,6 @@ import numpy as np
 Load all training and validation data paths加载所有训练和验证数据的路径
 '''
 def full_path_loader(data_dir):
-    #data_dir = '/mnt/Disk1/liyemei/change detection/Mei_CDNet/CDData/WHU/'
     train_data = [i for i in os.listdir(data_dir + 'train/A/') if not
     i.startswith('.')]
     train_data.sort()
