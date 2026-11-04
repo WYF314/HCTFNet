@@ -10,7 +10,7 @@ python train.py
 
 ## To Test
 
-1. Downloading the pre-trained checkpoint from [best_model.pth](https://pan.baidu.com/s/1oS0fSBS0DI6nYCFMdzXGPQ?pwd=5gax) and set the "dataset-dir" configuration parameter to the path of the downloaded file.
+1. Downloading the pre-trained checkpoint from [best_model.pt](https://pan.baidu.com/s/1oS0fSBS0DI6nYCFMdzXGPQ?pwd=5gax) and set the "dataset-dir" configuration parameter to the path of the downloaded file.
 2. python test.py
 
 ## overall network
