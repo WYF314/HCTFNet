@@ -1,6 +1,6 @@
 # Hierarchical Cross-Temporal Frequency Network for Remote Sensing Building Change Detection
 
-⭐ The code of HCTFNet has been completely released ⭐ 
+⭐ HCTFNet is now fully open source ⭐ 
 
 ## To Train 
 
