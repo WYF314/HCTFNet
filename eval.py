@@ -94,13 +94,13 @@ def eval_for_metric(model, eval_loader, criterion=None, tta=False, input_size=25
 if __name__ == "__main__":
     parser = argparse.ArgumentParser('Change Detection eval')
 
-    # 配置测试参数
+
     parser.add_argument("--ckp-paths", type=str,
                         default=[
                             "",
                         ])
 
-    parser.add_argument("--cuda", type=str, default="0")  # GPU编号
+    parser.add_argument("--cuda", type=str, default="0")
     parser.add_argument("--dataset-dir", type=str, default="")
     parser.add_argument("--batch-size", type=int, default=4)
     parser.add_argument("--num-workers", type=int, default=4)

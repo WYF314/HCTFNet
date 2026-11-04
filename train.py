@@ -14,7 +14,7 @@ def train(opt):
     init_seed()
     import os
     os.environ["CUDA_VISIBLE_DEVICES"] = opt.cuda
-    gpu_info()  # 打印GPU信息
+    gpu_info()
     save_path, best_ckp_save_path, best_ckp_file, result_save_path, every_ckp_save_path = check_dirs()
 
     save_results = SaveResult(result_save_path)
@@ -29,9 +29,9 @@ def train(opt):
 
     if opt.finetune:
         params = [{"params": [param for name, param in model.named_parameters()
-                              if "backbone" in name], "lr": opt.learning_rate / 10},  # 微调backbone
+                              if "backbone" in name], "lr": opt.learning_rate / 10},
                   {"params": [param for name, param in model.named_parameters()
-                              if "backbone" not in name], "lr": opt.learning_rate}]  # 其它层正常学习
+                              if "backbone" not in name], "lr": opt.learning_rate}]
         print("Using finetune for model")
     else:
         params = model.parameters()
@@ -39,7 +39,7 @@ def train(opt):
     if opt.pseudo_label:
         scheduler = CosOneCycle(optimizer, max_lr=opt.learning_rate/5, epochs=opt.epochs, up_rate=0)
     else:
-        scheduler = CosOneCycle(optimizer, max_lr=opt.learning_rate, min_lr= 0.0003, epochs=opt.epochs, up_rate=0.05)  # 自己定义的onecycle
+        scheduler = CosOneCycle(optimizer, max_lr=opt.learning_rate, min_lr= 0.0003, epochs=opt.epochs, up_rate=0.05)
 
     best_metric = 0
     train_avg_loss = 0
@@ -63,7 +63,7 @@ def train(opt):
             batch_label1 = batch_label1.long().cuda()
             batch_label2 = batch_label2.long().cuda()
 
-            batch_img1, batch_img2 = scale.scale_input((batch_img1, batch_img2))   # 指定某个尺度进行训练
+            batch_img1, batch_img2 = scale.scale_input((batch_img1, batch_img2))
             outs = model(batch_img1, batch_img2)
             outs = scale.scale_output(outs)
 
@@ -100,7 +100,6 @@ def train(opt):
             torch.save(model, best_ckp_file)
             best_metric = refer_metric.mean()
 
-        # 写日志
         lr = optimizer.state_dict()['param_groups'][0]['lr']
         save_results.show(p, r, f1, miou, oa, refer_metric, best_metric, train_avg_loss, val_avg_loss, lr, epoch)
 
@@ -108,17 +107,13 @@ def train(opt):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser('Change Detection train')
 
-    # 配置模型
-
     parser.add_argument("--backbone", type=str, default="pvt_64")
     parser.add_argument("--neck", type=str, default="fpn")
     parser.add_argument("--head", type=str, default="fcn")
     parser.add_argument("--loss", type=str, default="bce+dice")
 
-    # 配置训练参数
-
     parser.add_argument("--pretrain", type=str,
-                       default="")  # 预训练权重路径
+                       default="")
     parser.add_argument("--cuda", type=str, default="0")
     parser.add_argument("--dataset-dir", type=str, default="")
     parser.add_argument("--batch-size", type=int, default=16)

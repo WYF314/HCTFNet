@@ -46,10 +46,10 @@ class SpatialFrequencyAttention(nn.Module):
             freq_mask = 1.0 - freq_mask
         # IFFT
         fft_filtered = fft_shift * freq_mask
-        fft_ishift = torch.fft.ifftshift(fft_filtered)
-        x_filtered = torch.fft.ifft2(fft_ishift, dim=(-2, -1)).real
+        # fft_ishift = torch.fft.ifftshift(fft_filtered)
+        # x_filtered = torch.fft.ifft2(fft_ishift, dim=(-2, -1)).real
         
-        return x_filtered
+        return fft_filtered
 
     def forward(self, x):
         b, c, h, w = x.shape
@@ -57,14 +57,16 @@ class SpatialFrequencyAttention(nn.Module):
         # high freq
         x_filtered = self._fft_freq_filter(x)
         
-        fft_complex = torch.fft.fft2(x_filtered, dim=(-2, -1))
-        amplitude = torch.abs(fft_complex)
-        phase = torch.angle(fft_complex)
+        # fft_complex = torch.fft.fft2(x_filtered, dim=(-2, -1))
+        amplitude = torch.abs(x_filtered)
+        phase = torch.angle(x_filtered)
 
         amplitude_avg = torch.mean(amplitude, dim=1, keepdim=True) # (B,1,H,W)
-        phase_avg = torch.mean(phase, dim=1, keepdim=True)       # (B,1,H,W)
-        freq_feat = torch.cat([amplitude_avg, phase_avg], dim=1)   # (B,2,H,W)
+        amplitude_max, _ = torch.max(x, dim=1, keepdim=True)
+        # feat = torch.cat([amplitude_avg, amplitude_max], dim=1)   
 
+
+        freq_feat = torch.cat([amplitude_avg, amplitude_max], dim=1)   # (B,2,H,W)
         spatial_att = self.freq_conv(freq_feat)
         spatial_att = self.sigmoid(spatial_att)
 

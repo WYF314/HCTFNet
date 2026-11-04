@@ -18,10 +18,9 @@ np.seterr(divide='ignore', invalid='ignore')
 def eval(opt):
     os.environ["CUDA_VISIBLE_DEVICES"] = opt.cuda
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-    gpu_info()   # 打印GPU信息
+    gpu_info()
     save_path, result_save_path = check_eval_dirs()
 
-    # 准备写日志
     save_results = SaveResult(result_save_path)
     save_results.prepare()
 
@@ -36,13 +35,12 @@ def eval(opt):
 
     p, r, f1, miou, oa, avg_loss = eval_for_metric(model, eval_loader, tta=opt.tta)
 
-    # 写日志
     save_results.show(p, r, f1, miou, oa)
     print("F1-mean: {}".format(f1.mean()))
     print("mIOU-mean: {}".format(miou.mean()))
 
 
-def eval_for_metric(model, eval_loader, criterion=None, tta=False, input_size=448):   # 评估,得到指标(metric)
+def eval_for_metric(model, eval_loader, criterion=None, tta=False, input_size=448):
     avg_loss = 0
     val_loss = torch.tensor([0])
     scale = ScaleInOutput(input_size)
@@ -77,7 +75,7 @@ def eval_for_metric(model, eval_loader, criterion=None, tta=False, input_size=44
             if criterion is not None:
                 outs = scale.scale_output(outs)
                 val_loss = criterion(outs, labels)  # ((B,2 H,W), (B,2 H,W)) and ((B,H,W), (B,H,W))
-                _, cd_pred1 = torch.max(outs[0], 1)   # 二值化预测结果
+                _, cd_pred1 = torch.max(outs[0], 1)
                 _, cd_pred2 = torch.max(outs[1], 1)
             else:
                 cd_pred1 = outs[0]
@@ -144,13 +142,12 @@ def eval_for_metric(model, eval_loader, criterion=None, tta=False, input_size=44
 if __name__ == "__main__":
     parser = argparse.ArgumentParser('Change Detection eval')
 
-    # 配置测试参数
     parser.add_argument("--ckp-paths", type=str,
                         default=[
                             "",
                         ])
 
-    parser.add_argument("--cuda", type=str, default="0")  # GPU编号
+    parser.add_argument("--cuda", type=str, default="0")
     parser.add_argument("--dataset-dir", type=str, default="")
     parser.add_argument("--batch-size", type=int, default=1)
     parser.add_argument("--num-workers", type=int, default=8)

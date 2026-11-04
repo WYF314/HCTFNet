@@ -22,8 +22,6 @@ test_loader = get_test_loaders(opt, batch_size=1)
 
 weight_path = './runs/train/'
 
-##取weight_path第几个/后的文件名做为存储文件夹
-#save_path = weight_path.split('/')[1].split('-')[0]
 save_path = weight_path.split('/')[4]
 
 base_path = './output_imgs/LEVIR-CD/'+save_path+'/'

@@ -35,7 +35,7 @@ class ChangeDetection(nn.Module):
 
     # def forward(self, xa, xb, tta=False):
     def forward(self, xa, xb, tta=False):
-        if not tta:  # 如果不用测试时增强
+        if not tta: 
             return self.forward_once(xa, xb)
         else:
             return self.forward_tta(xa, xb)
@@ -43,7 +43,6 @@ class ChangeDetection(nn.Module):
     def forward_once(self, xa, xb):
         _, _, h_input, w_input = xa.shape
         assert xa.shape == xb.shape, "The two images are not the same size, please check it."
-        # out = self.backbone(xa, xb)
 
         fa1, fa2, fa3, fa4 = self.backbone(xa)
       
@@ -54,7 +53,7 @@ class ChangeDetection(nn.Module):
 
         fb1, fb2, fb3, fb4 = self.check_channels(fb1, fb2, fb3, fb4)
 
-        ms_feats = fa1, fa2, fa3, fa4, fb1, fb2, fb3, fb4   # 多尺度特征
+        ms_feats = fa1, fa2, fa3, fa4, fb1, fb2, fb3, fb4
 
         change = self.neck(ms_feats)
 
@@ -68,17 +67,17 @@ class ChangeDetection(nn.Module):
         mutil_scales = [1.0, 0.834, 0.667, 0.542]
 
         out1, out2 = 0, 0
-        for single_scale in mutil_scales:    # 多尺度测试
+        for single_scale in mutil_scales:
             single_scale = (int((h * single_scale) / 32) * 32, int((w * single_scale) / 32) * 32)
             xa_size = F.interpolate(xa, single_scale, mode='bilinear', align_corners=True)
             # xb_size = F.interpolate(xb, single_scale, mode='bilinear', align_corners=True)
 
-            out_1 = self.forward_once(xa_size)  # 正常forward
-            # out_2 = self.forward_once(xa_size.flip(2), xb_size.flip(2))  # 左右翻转
-            # out_3 = self.forward_once(xa_size.flip(3), xb_size.flip(3))  # 上下翻转
-            # out_4 = self.forward_once(xa_size.flip(2).flip(3), xb_size.flip(2).flip(3))  # 先左右，再上下翻转(旋转180°)
-            # out_5 = self.forward_once(xa_size.transpose(2, 3).flip(3), xb_size.transpose(2, 3).flip(3))  # 逆时针旋转90°
-            # out_6 = self.forward_once(xa_size.transpose(2, 3).flip(2), xb_size.transpose(2, 3).flip(2))  # 顺时针旋转90°
+            out_1 = self.forward_once(xa_size)
+            # out_2 = self.forward_once(xa_size.flip(2), xb_size.flip(2))
+            # out_3 = self.forward_once(xa_size.flip(3), xb_size.flip(3))
+            # out_4 = self.forward_once(xa_size.flip(2).flip(3), xb_size.flip(2).flip(3))
+            # out_5 = self.forward_once(xa_size.transpose(2, 3).flip(3), xb_size.transpose(2, 3).flip(3))
+            # out_6 = self.forward_once(xa_size.transpose(2, 3).flip(2), xb_size.transpose(2, 3).flip(2))
 
             if self.dl:  # 双标签
                 out1_1, out1_2 = out_1[0], out_1[1]
@@ -103,7 +102,7 @@ class ChangeDetection(nn.Module):
                 #
                 # out1 += F.interpolate(out1_1 + out2_1 + out3_1 + out4_1 + out5_1 + out6_1,
                 #                       size=(h, w), mode='bilinear', align_corners=True)
-                # out1 += F.interpolate(out1_1 + out2_1 + out3_1,                 # 仅左右翻转与上下翻转
+                # out1 += F.interpolate(out1_1 + out2_1 + out3_1,                
                 #                       size=(h, w), mode='bilinear', align_corners=True)
                 out1 += F.interpolate(out1_1,
                                       size=(h, w), mode='bilinear', align_corners=True)
@@ -141,11 +140,11 @@ class ChangeDetection(nn.Module):
         else:
             return (out1, out2) if self.dl else out1
 
-    def _init_weight(self, pretrain=''):  # 初始化权重
+    def _init_weight(self, pretrain=''):
         for m in self.modules():
-            if isinstance(m, nn.Conv2d):  # 只要是卷积都操作，都对weight和bias进行kaiming初始化
+            if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
-            elif isinstance(m, nn.BatchNorm2d):  # bn层都权重初始化为1， bias=0
+            elif isinstance(m, nn.BatchNorm2d):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
         if pretrain.endswith(('.pth','pt')):
@@ -153,9 +152,9 @@ class ChangeDetection(nn.Module):
             if isinstance(pretrained_dict, nn.DataParallel):
                 pretrained_dict = pretrained_dict.module
             model_dict = self.state_dict()
-            # pretrained_dict = {k: v for k, v in pretrained_dict.items() #pth使用
+            # pretrained_dict = {k: v for k, v in pretrained_dict.items() #pth
             #                    if k in model_dict.keys()}
-            pretrained_dict = {k: v for k, v in pretrained_dict.state_dict().items() #pt模型使用
+            pretrained_dict = {k: v for k, v in pretrained_dict.state_dict().items() #pt
                                if k in model_dict.keys()}
             model_dict.update(pretrained_dict)
             self.load_state_dict(OrderedDict(model_dict), strict=True)
@@ -188,7 +187,7 @@ class ChangeDetection(nn.Module):
         self.head1 = self._select_head(head)
         self.head2 = self._select_head(head) if self.dl else None
 
-        if self.auxiliary_head:   # 辅助分支仅使用简单的FCN
+        if self.auxiliary_head:
             self.aux_stage1_head1 = FCNHead(self.inplanes * 2, 2)
             self.aux_stage1_head2 = FCNHead(self.inplanes * 2, 2) if self.dl else None
 
@@ -204,15 +203,7 @@ class ChangeDetection(nn.Module):
 
 class EnsembleModel(nn.Module):
     def __init__(self, ckp_paths, device, method="avg2", input_size=256):
-        """
-        :param ckp_paths:
-        :param device:
-        :param method: 模型集成的可选方式；经过测试，avg2效果最好
-                       avg1: 模型输出后，不经过 softmax 
-                       ，直接求平均，然后再二值化
-                       avg2: 模型输出后，先经过 softmax ，再求平均，最后二值化
-                       vote: 模型输出后， 先二值化，然后进行投票，and、or、多数胜少数
-        """
+
         super(EnsembleModel, self).__init__()
         self.method = method
         self.models_list = []
@@ -237,12 +228,7 @@ class EnsembleModel(nn.Module):
             model.eval()
 
     def forward(self, xa, xb, tta=False):
-        """
-        :param xa:
-        :param xb:
-        :param tta:
-        :return: 经过二值化的结果
-        """
+
         xa, xb = self.scale.scale_input((xa, xb))
         out1, out2 = 0, 0
         cd_pred1, cd_pred2 = None, None
@@ -251,15 +237,15 @@ class EnsembleModel(nn.Module):
             # outs, att = model(xa, xb, tta)
             outs = model(xa, xb, tta)
             # outs = F.interpolate(outs, size=(512, 512), mode='bilinear', align_corners=True)
-            if not isinstance(outs, tuple):  # 如果cd_pred是tuple, 就表明它是双向预测输出; 否则就把单预测复制一份，变成双预测
+            if not isinstance(outs, tuple):
                 outs = (outs, outs)
             outs = self.scale.scale_output(outs)
             if "avg" in self.method:
                 if self.method == "avg2":
-                    outs = (F.softmax(outs[0], dim=1), F.softmax(outs[1], dim=1))  # 先进行softmax
+                    outs = (F.softmax(outs[0], dim=1), F.softmax(outs[1], dim=1)) 
                 out1 += outs[0]
                 out2 += outs[1]
-                _, cd_pred1 = torch.max(out1, 1)  # 二值化预测结果
+                _, cd_pred1 = torch.max(out1, 1)
                 _, cd_pred2 = torch.max(out2, 1)
             elif self.method == "vote":
                 _, out1_tmp = torch.max(outs[0], 1)
@@ -285,7 +271,7 @@ class ModelEMA:
             p.requires_grad_(False)
 
         self.shadow2 = deepcopy(self.shadow1)
-        self.shadow3 = deepcopy(self.shadow1)   # 第0代的权重设为0
+        self.shadow3 = deepcopy(self.shadow1)
         self.update_count = 0
 
     def update(self, model):
@@ -294,15 +280,15 @@ class ModelEMA:
             for k, v in self.shadow1.state_dict().items():
                 if v.dtype.is_floating_point:
                     v *= self.decay
-                    v += (1. - self.decay) * msd[k].detach()   # += 是本地操作，其值原地修改
+                    v += (1. - self.decay) * msd[k].detach()
             for k, v in self.shadow2.state_dict().items():
                 if v.dtype.is_floating_point:
                     v *= 0.95
-                    v += (1. - 0.95) * msd[k].detach()   # += 是本地操作，其值原地修改
+                    v += (1. - 0.95) * msd[k].detach()
             for k, v in self.shadow3.state_dict().items():
                 if v.dtype.is_floating_point:
                     v *= 0.94
-                    v += (1. - 0.94) * msd[k].detach()   # += 是本地操作，其值原地修改
+                    v += (1. - 0.94) * msd[k].detach()
         self.update_count += 1
 
     @staticmethod
@@ -314,7 +300,7 @@ class ModelSWA:
 
     def __init__(self, total_epoch=300):
         self.update_count = 0
-        self.epoch_threshold = int(total_epoch * 0.8)    # 训练的过程中，前80%的epoch不进行SWA，从80%处开始SWA
+        self.epoch_threshold = int(total_epoch * 0.8)
         self.swa_model = None
 
     def update(self, model):

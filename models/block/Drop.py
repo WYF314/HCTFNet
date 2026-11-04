@@ -32,9 +32,7 @@ class DropBlock(nn.Module):
 
 
 def dropblock_step(model):
-    """
-    更新 dropblock的drop率
-    """
+
     neck = model.module.neck if hasattr(model, "module") else model.neck
     if hasattr(neck, "drop"):
         neck.drop.step()

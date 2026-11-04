@@ -15,7 +15,7 @@ class Conv3Relu(nn.Module):
         return x
 
 
-class Conv1Relu(nn.Module):  # 1*1卷积用来降维
+class Conv1Relu(nn.Module):
     def __init__(self, in_ch, out_ch):
         super(Conv1Relu, self).__init__()
         self.extract = nn.Sequential(nn.Conv2d(in_ch, out_ch, (1, 1), bias=False),
@@ -61,7 +61,7 @@ class ChannelChecker(nn.Module):
     def __init__(self, backbone, inplanes, input_size):
         super(ChannelChecker, self).__init__()
         input_sample = torch.randn(1, 3, input_size, input_size)
-        f1, f2, f3, f4 = backbone(input_sample)         #6.16改
+        f1, f2, f3, f4 = backbone(input_sample)   
         # f1, f2, f3, f4, f5, f6, f7, f8 = backbone(input_sample,input_sample)
 
         channels1 = f1.size(1)

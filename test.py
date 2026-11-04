@@ -97,7 +97,6 @@ def eval(opt):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser('visualization')
 
-    # 配置测试参数
     parser.add_argument("--ckp-paths", type=str,default=[".",])
 
     parser.add_argument("--cuda", type=str, default="0")

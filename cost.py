@@ -16,7 +16,7 @@ from main_model import ChangeDetection, ModelEMA, ModelSWA
 def train(opt):
     init_seed()
     os.environ["CUDA_VISIBLE_DEVICES"] = opt.cuda
-    gpu_info()  # 打印GPU信息
+    gpu_info()
     save_path, best_ckp_save_path, best_ckp_file, result_save_path, every_ckp_save_path = check_dirs()
 
     save_results = SaveResult(result_save_path)
@@ -43,9 +43,9 @@ def train(opt):
 
     if opt.finetune:
         params = [{"params": [param for name, param in model.named_parameters()
-                              if "backbone" in name], "lr": opt.learning_rate / 10},  # 微调backbone
+                              if "backbone" in name], "lr": opt.learning_rate / 10},
                   {"params": [param for name, param in model.named_parameters()
-                              if "backbone" not in name], "lr": opt.learning_rate}]  # 其它层正常学习
+                              if "backbone" not in name], "lr": opt.learning_rate}]
         print("Using finetune for model")
     else:
         params = model.parameters()
@@ -53,7 +53,7 @@ def train(opt):
     if opt.pseudo_label:
         scheduler = CosOneCycle(optimizer, max_lr=opt.learning_rate/5, epochs=opt.epochs, up_rate=0)
     else:
-        scheduler = CosOneCycle(optimizer, max_lr=opt.learning_rate, epochs=opt.epochs)  # 自己定义的onecycle
+        scheduler = CosOneCycle(optimizer, max_lr=opt.learning_rate, epochs=opt.epochs)
 
     best_metric = 0
     train_avg_loss = 0
@@ -77,7 +77,7 @@ def train(opt):
             batch_label1 = batch_label1.long().cuda()
             batch_label2 = batch_label2.long().cuda()
 
-            batch_img1, batch_img2 = scale.scale_input((batch_img1, batch_img2))   # 指定某个尺度进行训练
+            batch_img1, batch_img2 = scale.scale_input((batch_img1, batch_img2))
             outs = model(batch_img1, batch_img2)
             outs = scale.scale_output(outs)
 

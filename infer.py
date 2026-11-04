@@ -83,7 +83,6 @@ gm._init()
 if __name__ == "__main__":
     parser = argparse.ArgumentParser('Change Detection infer main')
 
-    # 配置推理参数
     parser.add_argument("--ckp_paths", type=str,
                         default=[
                             "",
